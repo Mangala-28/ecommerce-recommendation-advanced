@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-commerce Recommendation</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            background: #f4f6f9;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            margin: 40px auto;
+            width: 420px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 12px rgba(0,0,0,0.2);
+        }
+
+        input, select {
+            padding: 10px;
+            margin: 10px;
+            width: 85%;
+            border-radius: 5px;
+            border: 1px solid gray;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        li {
+            margin: 10px;
+            list-style: none;
+            background: #e3eaf2;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🛒 E-commerce Recommendation System</h1>
+
+<div class="box">
+
+<form method="POST">
+    <input type="text" name="user_id" placeholder="Enter User ID (e.g. U0103)" required>
+
+    <select name="model">
+        <option value="ML">Machine Learning</option>
+        <option value="DL">Deep Learning</option>
+        <option value="QML">Quantum ML</option>
+    </select>
+
+    <br>
+    <button type="submit">Get Recommendations</button>
+</form>
+
+{% if error %}
+<h3 class="error">{{ error }}</h3>
+{% endif %}
+
+{% if customer_name %}
+<h3>👤 {{ customer_name }}</h3>
+<h4>⚙ Model Used: {{ model_type }}</h4>
+{% endif %}
+
+{% if recommendations %}
+<h3>🎯 Recommendations:</h3>
+<ul>
+    {% for product, rating in recommendations %}
+        <li>{{ product }} → Rating: {{ rating }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+</div>
+
+</body>
+</html>
