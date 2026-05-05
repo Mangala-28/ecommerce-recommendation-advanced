@@ -6,17 +6,35 @@ app = Flask(__name__)
 
 # ---------------- LOAD DATA ----------------
 df = pd.read_csv("data.csv")
-df = df[['User_ID', 'Product_ID', 'User_Rating']]
-df.columns = ['user_id', 'product_id', 'rating']
 
-# Create matrix
-user_matrix = df.pivot_table(index='user_id', columns='product_id', values='rating').fillna(0)
+# Clean column names (important)
+df.columns = df.columns.str.strip()
 
-# ---------------- AUTO NAMES ----------------
-# Dynamic product names
-product_names = {pid: f"Product {pid}" for pid in user_matrix.columns}
+# Select required columns from your CSV
+df = df[['User_ID', 'Product_ID', 'Category']]
 
-# Dynamic user names
+# Rename columns
+df.columns = ['user_id', 'product_id', 'category']
+
+# Create rating (since your dataset has no rating column)
+# We simulate rating for demo purpose
+df['rating'] = np.random.randint(1, 6, size=len(df))
+
+# ---------------- USER MATRIX ----------------
+user_matrix = df.pivot_table(
+    index='user_id',
+    columns='product_id',
+    values='rating'
+).fillna(0)
+
+# ---------------- PRODUCT NAMES ----------------
+# Using category to create meaningful names
+product_names = {
+    row['product_id']: f"{row['category']} Item ({row['product_id']})"
+    for _, row in df.iterrows()
+}
+
+# ---------------- USER NAMES ----------------
 user_names = {uid: f"Customer {uid}" for uid in user_matrix.index}
 
 # ---------------- ML MODEL ----------------
@@ -24,13 +42,13 @@ def ml_recommend(user_id):
     user_data = user_matrix.loc[user_id]
     return user_data.sort_values(ascending=False).head(5)
 
-# ---------------- DL MODEL (SIMULATED) ----------------
+# ---------------- DL MODEL ----------------
 def dl_recommend(user_id):
     user_data = user_matrix.loc[user_id]
     scores = user_data + np.random.rand(len(user_data))
     return scores.sort_values(ascending=False).head(5)
 
-# ---------------- QML MODEL (SIMULATED) ----------------
+# ---------------- QML MODEL ----------------
 def qml_recommend(user_id):
     user_data = user_matrix.loc[user_id]
     scores = np.sin(user_data + np.random.rand(len(user_data)))
@@ -65,12 +83,14 @@ def home():
                 for pid, score in recs.items()
             ]
 
-    return render_template('index.html',
-                           recommendations=recommendations,
-                           customer_name=customer_name,
-                           model_type=model_type,
-                           error=error)
+    return render_template(
+        'index.html',
+        recommendations=recommendations,
+        customer_name=customer_name,
+        model_type=model_type,
+        error=error
+    )
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5002)
